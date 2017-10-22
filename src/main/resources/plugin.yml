@@ -1,0 +1,4 @@
+name: Zombageddon
+main: nu.nerd.zombageddon.Zombageddon
+description: Zombie apocalypse plugin
+version: ${project.version}
