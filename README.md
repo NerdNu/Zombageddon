@@ -9,6 +9,6 @@ Zombie apocalpyse plugin. Requires [MirrorMirror](https://github.com/NerdNu/Mirr
 
 2. **Breaking:** If a zombie is frustrated, and cannot bridge/pillar, it will attempt to break walls in its way. The zombie will target a specific block and attribute the time the zombie is stuck in one spot to just that block. Once the wait time exceeds block break time (configurable per material), the block is broken as if by a silk touch tool.
 
-3. **Aggro Radius:** Use Attribute system to set zombies' aggro range to be significantly higher.
+~~3. **Aggro Radius:** Use Attribute system to set zombies' aggro range to be significantly higher.~~
 
 4. **Spawn extra zombies:** When a player is around zombies, add more zombies!
