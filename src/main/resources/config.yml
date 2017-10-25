@@ -1,2 +1,5 @@
 worlds:
 - world
+
+
+aggro_radius: 160

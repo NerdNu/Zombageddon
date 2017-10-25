@@ -6,12 +6,14 @@ import org.bukkit.World;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class Configuration {
 
 
     private Zombageddon plugin;
 
     public Set<String> WORLDS;
+    public int AGGRO_RADIUS;
 
 
     public Configuration(Zombageddon plugin) {
@@ -22,6 +24,7 @@ public class Configuration {
     public void reload() {
         plugin.reloadConfig();
         WORLDS = new HashSet<String>(plugin.getConfig().getStringList("worlds"));
+        AGGRO_RADIUS = plugin.getConfig().getInt("aggro_radius", 160);
     }
 
 

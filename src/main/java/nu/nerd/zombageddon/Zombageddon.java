@@ -7,13 +7,14 @@ public class Zombageddon extends JavaPlugin {
 
 
     public static Zombageddon instance;
-    public static Configuration CONFIG;
+    public Configuration CONFIG;
 
 
     public void onEnable() {
         Zombageddon.instance = this;
         CONFIG = new Configuration(this);
         CONFIG.reload();
+        new ZombieListener(this);
     }
 
 
