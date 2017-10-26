@@ -1,16 +1,19 @@
 package nu.nerd.zombageddon;
 
 
+import nu.nerd.mirrormirror.ExtendedEntity;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,7 +38,7 @@ public class ZombieMotivator extends BukkitRunnable {
     public void run() {
         for (Zombie zombie : getEligibleZombies()) {
             incrementFrustrationTime(zombie);
-            tryPillaring(zombie);
+            tryBridging(zombie, tryPillaring(zombie));
         }
     }
 
@@ -95,19 +98,49 @@ public class ZombieMotivator extends BukkitRunnable {
     }
 
 
-    private void tryPillaring(Zombie zombie) {
+    /**
+     * Determine whether to pillar or not
+     * @param zombie the entity
+     * @return true if the attempt was successful
+     */
+    private boolean tryPillaring(Zombie zombie) {
 
         if (!zombieMeta.containsKey(zombie.getUniqueId()) || zombieMeta.get(zombie.getUniqueId()).getFrustLoc() == null) {
-            return;
+            return false;
         }
 
         ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
 
-        if (!meta.isFrustrated()) return; //under frustration limit
-        if (zombie.getLocation().getBlockY() >= zombie.getTarget().getLocation().getBlockY()) return; //on or higher than the target's Y
-        if ((System.currentTimeMillis() - meta.getLastBlockMillis()) < 1000) return; //block place cooldown
+        if (!meta.isFrustrated()) return false; //under frustration limit
+        if (zombie.getLocation().getBlockY() >= zombie.getTarget().getLocation().getBlockY()) return false; //on or higher than the target's Y
+        if ((System.currentTimeMillis() - meta.getLastBlockMillis()) < 1000) return false; //block place cooldown
 
-        doPillar(zombie);
+        return doPillar(zombie);
+
+    }
+
+
+    /**
+     * Determine whether to bridge horizontally or not
+     * @param zombie the entity
+     * @param didPillar whether the previous pillar attempt was successful
+     * @return true if the attempt was successful
+     */
+    private boolean tryBridging(Zombie zombie, boolean didPillar) {
+
+        if (!zombieMeta.containsKey(zombie.getUniqueId()) || zombieMeta.get(zombie.getUniqueId()).getFrustLoc() == null) {
+            return false;
+        }
+
+        ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
+
+        if (!meta.isFrustrated()) return false; //under frustration limit
+        if ((System.currentTimeMillis() - meta.getLastBlockMillis()) < 1000) return false; //block place cooldown
+        if (didPillar) return false; //don't bridge on this iteration if a pillar attempt was successful
+        if (isAirBelow(zombie.getLocation().getBlock())) return false;
+        if (distance2D(zombie.getLocation(), zombie.getTarget().getLocation()) < 2) return false;
+
+        return doBridge(zombie);
 
     }
 
@@ -115,7 +148,7 @@ public class ZombieMotivator extends BukkitRunnable {
     /**
      * Make the zombie jump up and place a block
      */
-    private void doPillar(Zombie zombie) {
+    private boolean doPillar(Zombie zombie) {
 
         Location loc = zombie.getLocation();
         Block block = loc.getBlock();
@@ -126,12 +159,12 @@ public class ZombieMotivator extends BukkitRunnable {
 
         //Don't place a block if the zombie is falling/otherwise in midair
         if (blockBelow == null || blockBelow.getType().equals(Material.AIR)) {
-            return;
+            return false;
         }
 
         //Don't pillar if there's an obstruction
         if (blockAbove != null && !blockAbove.getType().equals(Material.AIR)) {
-            return;
+            return false;
         }
 
         //Use sponge if the zombie is standing in water
@@ -145,6 +178,44 @@ public class ZombieMotivator extends BukkitRunnable {
 
         meta.setLastBlockMillis(System.currentTimeMillis());
 
+        return true;
+
+    }
+
+
+    /**
+     * Make the zombie place a horizontal bridge block
+     */
+    private boolean doBridge(Zombie zombie) {
+
+        ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
+        Location loc = zombie.getLocation();
+        Location targetLoc = zombie.getTarget().getLocation();
+        Material material = Material.LEAVES;
+        ExtendedEntity exZombie = new ExtendedEntity(zombie);
+
+        int xDist = Math.abs(loc.getBlockX() - targetLoc.getBlockX());
+        int zDist = Math.abs(loc.getBlockZ() - targetLoc.getBlockZ());
+        Location placementLoc = loc.clone();
+
+        if (xDist > zDist) {
+            placementLoc.add(1, -1, 0);
+        } else {
+            placementLoc.add(0, -1, 1);
+        }
+
+        if (!isAirBelow(placementLoc.getBlock())) {
+            return false;
+        }
+
+        placementLoc.getBlock().setType(material);
+        zombie.getWorld().playEffect(placementLoc, Effect.STEP_SOUND, material.getId());
+        meta.setLastBlockMillis(System.currentTimeMillis());
+        exZombie.walkTo(placementLoc.add(0, 1, 0), 1.0f);
+        meta.setFrustLoc(placementLoc);
+
+        return true;
+
     }
 
 
@@ -154,6 +225,18 @@ public class ZombieMotivator extends BukkitRunnable {
         Location l2 = loc2.clone();
         l2.setY(0.0);
         return l1.distance(l2);
+    }
+
+
+    private boolean isAirBelow(Block block) {
+        Block under = block.getRelative(BlockFace.DOWN);
+        Material[] air = {
+                Material.AIR,
+                Material.LONG_GRASS,
+                Material.RED_ROSE,
+                Material.YELLOW_FLOWER
+        };
+        return Arrays.asList(air).contains(under.getType());
     }
 
 
