@@ -32,7 +32,7 @@ public class ZombieMotivator extends BukkitRunnable {
         this.timeMap = new HashMap<UUID, Integer>();
         this.locMap = new HashMap<UUID, Location>();
         this.lastBlockMap = new HashMap<UUID, Long>();
-        this.runTaskTimer(plugin, 5L, 5L);
+        this.runTaskTimer(plugin, 1L, 1L);
     }
 
 
@@ -84,14 +84,16 @@ public class ZombieMotivator extends BukkitRunnable {
      */
     private void incrementFrustrationTime(Zombie zombie) {
         Location loc;
-        if (!timeMap.containsKey(zombie.getUniqueId())) {
+        if (!timeMap.containsKey(zombie.getUniqueId()) || !locMap.containsKey(zombie.getUniqueId())) {
             timeMap.put(zombie.getUniqueId(), 0);
             locMap.put(zombie.getUniqueId(), zombie.getLocation());
         } else {
             loc = locMap.get(zombie.getUniqueId());
-            if (loc.distance(zombie.getLocation()) <= 1.0) {
-                timeMap.put(zombie.getUniqueId(), timeMap.get(zombie.getUniqueId()) + 5);
-                locMap.put(zombie.getUniqueId(), zombie.getLocation());
+            if (distance2D(loc, zombie.getLocation()) <= 2.0) {
+                timeMap.put(zombie.getUniqueId(), timeMap.get(zombie.getUniqueId()) + 1);
+            } else {
+                timeMap.remove(zombie.getUniqueId());
+                locMap.remove(zombie.getUniqueId());
             }
         }
     }
@@ -99,10 +101,14 @@ public class ZombieMotivator extends BukkitRunnable {
 
     private void tryPillaring(Zombie zombie) {
 
+        if (!timeMap.containsKey(zombie.getUniqueId()) || !locMap.containsKey(zombie.getUniqueId())) {
+            return;
+        }
+
         int time = timeMap.get(zombie.getUniqueId());
         long lastPlaced = (lastBlockMap.containsKey(zombie.getUniqueId())) ? lastBlockMap.get(zombie.getUniqueId()) : 0;
 
-        if (time < 200) return; //under 200 ticks of frustration
+        if (time < 100) return; //under 100 ticks of frustration
         if (zombie.getLocation().getBlockY() >= zombie.getTarget().getLocation().getBlockY()) return; //on or higher than the target's Y
         if ((System.currentTimeMillis() - lastPlaced) < 1000) return; //block place cooldown
 
@@ -143,6 +149,15 @@ public class ZombieMotivator extends BukkitRunnable {
 
         this.lastBlockMap.put(zombie.getUniqueId(), System.currentTimeMillis());
 
+    }
+
+
+    private double distance2D(Location loc1, Location loc2) {
+        Location l1 = loc1.clone();
+        l1.setY(0.0);
+        Location l2 = loc2.clone();
+        l2.setY(0.0);
+        return l1.distance(l2);
     }
 
 

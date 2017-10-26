@@ -3,3 +3,15 @@ main: nu.nerd.zombageddon.Zombageddon
 description: Zombie apocalypse plugin
 version: ${project.version}
 depend: [MirrorMirror]
+
+commands:
+  zombageddon:
+    usage: /zombageddon [subcommand]
+    description: Zombie apocalypse plugin
+    permission: zombageddon.command
+    permission-message: You don't have permission to do that.
+
+
+permissions:
+  zombageddon.command:
+    description: Manage Zombageddon

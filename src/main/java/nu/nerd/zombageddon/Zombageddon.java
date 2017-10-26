@@ -16,6 +16,7 @@ public class Zombageddon extends JavaPlugin {
         CONFIG.reload();
         new ZombieListener(this);
         new ZombieMotivator(this);
+        new CommandHandler(this);
     }
 
 
