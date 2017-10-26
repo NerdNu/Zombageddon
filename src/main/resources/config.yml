@@ -3,3 +3,5 @@ worlds:
 
 
 aggro_radius: 160
+
+construction: true

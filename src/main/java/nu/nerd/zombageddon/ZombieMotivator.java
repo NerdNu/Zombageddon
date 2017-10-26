@@ -111,6 +111,7 @@ public class ZombieMotivator extends BukkitRunnable {
 
         ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
 
+        if (!plugin.CONFIG.CONSTRUCTION) return false;
         if (!meta.isFrustrated()) return false; //under frustration limit
         if (zombie.getLocation().getBlockY() >= zombie.getTarget().getLocation().getBlockY()) return false; //on or higher than the target's Y
         if ((System.currentTimeMillis() - meta.getLastBlockMillis()) < 1000) return false; //block place cooldown
@@ -134,6 +135,7 @@ public class ZombieMotivator extends BukkitRunnable {
 
         ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
 
+        if (!plugin.CONFIG.CONSTRUCTION) return false;
         if (!meta.isFrustrated()) return false; //under frustration limit
         if ((System.currentTimeMillis() - meta.getLastBlockMillis()) < 1000) return false; //block place cooldown
         if (didPillar) return false; //don't bridge on this iteration if a pillar attempt was successful
