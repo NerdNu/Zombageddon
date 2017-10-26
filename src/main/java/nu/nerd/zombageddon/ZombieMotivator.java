@@ -22,16 +22,12 @@ public class ZombieMotivator extends BukkitRunnable {
 
 
     private Zombageddon plugin;
-    private Map<UUID, Integer> timeMap;
-    private Map<UUID, Location> locMap;
-    private Map<UUID, Long> lastBlockMap;
+    private Map<UUID, ZombieMeta> zombieMeta;
 
 
     public ZombieMotivator(Zombageddon plugin) {
         this.plugin = plugin;
-        this.timeMap = new HashMap<UUID, Integer>();
-        this.locMap = new HashMap<UUID, Location>();
-        this.lastBlockMap = new HashMap<UUID, Long>();
+        this.zombieMeta = new HashMap<UUID, ZombieMeta>();
         this.runTaskTimer(plugin, 1L, 1L);
     }
 
@@ -54,10 +50,11 @@ public class ZombieMotivator extends BukkitRunnable {
             for (LivingEntity entity : world.getLivingEntities()) {
                 if (isZombieChasingPlayer(entity)) {
                     eligibleZombies.add((Zombie) entity);
+                    if (!zombieMeta.containsKey(entity.getUniqueId())) {
+                        zombieMeta.put(entity.getUniqueId(), new ZombieMeta(entity.getUniqueId()));
+                    }
                 } else {
-                    timeMap.remove(entity.getUniqueId());
-                    locMap.remove(entity.getUniqueId());
-                    lastBlockMap.remove(entity.getUniqueId());
+                    zombieMeta.remove(entity.getUniqueId());
                 }
             }
         }
@@ -83,17 +80,16 @@ public class ZombieMotivator extends BukkitRunnable {
      * Add ticks to timeMap if the zombie is still in the same place as the last time around
      */
     private void incrementFrustrationTime(Zombie zombie) {
-        Location loc;
-        if (!timeMap.containsKey(zombie.getUniqueId()) || !locMap.containsKey(zombie.getUniqueId())) {
-            timeMap.put(zombie.getUniqueId(), 0);
-            locMap.put(zombie.getUniqueId(), zombie.getLocation());
+        ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
+        if (meta.getFrustLoc() == null) {
+            meta.setFrustLoc(zombie.getLocation());
+            meta.setFrustTicks(0);
         } else {
-            loc = locMap.get(zombie.getUniqueId());
-            if (distance2D(loc, zombie.getLocation()) <= 2.0) {
-                timeMap.put(zombie.getUniqueId(), timeMap.get(zombie.getUniqueId()) + 1);
+            if (distance2D(meta.getFrustLoc(), zombie.getLocation()) <= 2.0) {
+                meta.incrementFrustTicks();
             } else {
-                timeMap.remove(zombie.getUniqueId());
-                locMap.remove(zombie.getUniqueId());
+                meta.setFrustTicks(0);
+                meta.setFrustLoc(null);
             }
         }
     }
@@ -101,16 +97,15 @@ public class ZombieMotivator extends BukkitRunnable {
 
     private void tryPillaring(Zombie zombie) {
 
-        if (!timeMap.containsKey(zombie.getUniqueId()) || !locMap.containsKey(zombie.getUniqueId())) {
+        if (!zombieMeta.containsKey(zombie.getUniqueId()) || zombieMeta.get(zombie.getUniqueId()).getFrustLoc() == null) {
             return;
         }
 
-        int time = timeMap.get(zombie.getUniqueId());
-        long lastPlaced = (lastBlockMap.containsKey(zombie.getUniqueId())) ? lastBlockMap.get(zombie.getUniqueId()) : 0;
+        ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
 
-        if (time < 100) return; //under 100 ticks of frustration
+        if (!meta.isFrustrated()) return; //under frustration limit
         if (zombie.getLocation().getBlockY() >= zombie.getTarget().getLocation().getBlockY()) return; //on or higher than the target's Y
-        if ((System.currentTimeMillis() - lastPlaced) < 1000) return; //block place cooldown
+        if ((System.currentTimeMillis() - meta.getLastBlockMillis()) < 1000) return; //block place cooldown
 
         doPillar(zombie);
 
@@ -127,6 +122,7 @@ public class ZombieMotivator extends BukkitRunnable {
         Block blockBelow = loc.subtract(0, 1, 0).getBlock();
         Block blockAbove = loc.add(0, 1, 0).getBlock();
         Material material = Material.LEAVES;
+        ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
 
         //Don't place a block if the zombie is falling/otherwise in midair
         if (blockBelow == null || blockBelow.getType().equals(Material.AIR)) {
@@ -147,7 +143,7 @@ public class ZombieMotivator extends BukkitRunnable {
         block.setType(material);
         zombie.getWorld().playEffect(loc, Effect.STEP_SOUND, material.getId());
 
-        this.lastBlockMap.put(zombie.getUniqueId(), System.currentTimeMillis());
+        meta.setLastBlockMillis(System.currentTimeMillis());
 
     }
 
