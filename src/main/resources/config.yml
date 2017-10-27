@@ -1,7 +1,9 @@
+# Worlds the plugin will be active in
 worlds:
 - world
 
-
+# Radius that zombies will follow and aggro
 aggro_radius: 160
 
+# Allow zombies to bridge/pillar to reach players
 construction: true
