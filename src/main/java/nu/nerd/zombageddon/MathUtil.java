@@ -12,7 +12,7 @@ public class MathUtil {
      * also uses a costly square root function.
      */
     public static double distance2DSquared(Location loc1, Location loc2) {
-        return square(loc1.getX() - loc2.getX()) - square(loc1.getZ() - loc2.getZ());
+        return square(loc1.getX() - loc2.getX()) + square(loc1.getZ() - loc2.getZ());
     }
 
 
