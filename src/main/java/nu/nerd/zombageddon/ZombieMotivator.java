@@ -88,7 +88,7 @@ public class ZombieMotivator extends BukkitRunnable {
             meta.setFrustLoc(zombie.getLocation());
             meta.setFrustTicks(0);
         } else {
-            if (MathUtil.distance2DSquared(meta.getFrustLoc(), zombie.getLocation()) <= MathUtil.square(2.0)) {
+            if (MathUtil.distance2DSquared(meta.getFrustLoc(), zombie.getLocation()) <= Math.pow(2.0, 2)) {
                 meta.incrementFrustTicks();
             } else {
                 meta.setFrustTicks(0);
@@ -140,7 +140,7 @@ public class ZombieMotivator extends BukkitRunnable {
         if ((System.currentTimeMillis() - meta.getLastBlockMillis()) < 1000) return false; //block place cooldown
         if (didPillar) return false; //don't bridge on this iteration if a pillar attempt was successful
         if (isAirBelow(zombie.getLocation().getBlock())) return false;
-        if (MathUtil.distance2DSquared(zombie.getLocation(), zombie.getTarget().getLocation()) < MathUtil.square(2)) return false;
+        if (MathUtil.distance2DSquared(zombie.getLocation(), zombie.getTarget().getLocation()) < Math.pow(2, 2)) return false;
 
         return doBridge(zombie);
 
