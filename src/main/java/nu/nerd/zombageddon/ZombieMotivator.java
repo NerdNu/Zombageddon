@@ -211,6 +211,10 @@ public class ZombieMotivator extends BukkitRunnable {
             return false;
         }
 
+        if (!placementLoc.getBlock().getType().equals(Material.AIR)) {
+            return false; //prevent destruction of existing platforms
+        }
+
         placementLoc.getBlock().setType(material);
         zombie.getWorld().playEffect(placementLoc, Effect.STEP_SOUND, material.getId());
         meta.setLastBlockMillis(System.currentTimeMillis());
