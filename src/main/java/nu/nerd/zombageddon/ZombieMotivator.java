@@ -39,6 +39,7 @@ public class ZombieMotivator extends BukkitRunnable {
         for (Zombie zombie : getEligibleZombies()) {
             incrementFrustrationTime(zombie);
             tryBridging(zombie, tryPillaring(zombie));
+            destroyTorches(zombie);
         }
     }
 
@@ -217,6 +218,29 @@ public class ZombieMotivator extends BukkitRunnable {
         meta.setFrustLoc(placementLoc);
 
         return true;
+
+    }
+
+
+    /**
+     * Zombies will break torches in brightly lit areas
+     */
+    private void destroyTorches(Zombie zombie) {
+
+        if (!plugin.CONFIG.TORCH_DESTRUCTION) return;
+        if (zombie.getLocation().getBlock().getLightLevel() < 11) return;
+
+        //Destroy nearby torches
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                for (int z = -1; z <= 1; z++) {
+                    Block block = zombie.getLocation().getBlock().getRelative(x, y, z);
+                    if (!block.getType().equals(Material.TORCH)) continue;
+                    zombie.getWorld().playEffect(zombie.getLocation(), Effect.STEP_SOUND, Material.TORCH.getId());
+                    block.breakNaturally();
+                }
+            }
+        }
 
     }
 

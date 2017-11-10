@@ -7,3 +7,5 @@ aggro_radius: 160
 
 # Allow zombies to bridge/pillar to reach players
 construction: true
+
+torch_destruction: true
