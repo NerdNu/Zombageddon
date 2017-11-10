@@ -229,6 +229,7 @@ public class ZombieMotivator extends BukkitRunnable {
 
         if (!plugin.CONFIG.TORCH_DESTRUCTION) return;
         if (zombie.getLocation().getBlock().getLightLevel() < 11) return;
+        ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
 
         //Destroy nearby torches
         for (int x = -1; x <= 1; x++) {
@@ -238,6 +239,25 @@ public class ZombieMotivator extends BukkitRunnable {
                     if (!block.getType().equals(Material.TORCH)) continue;
                     zombie.getWorld().playEffect(zombie.getLocation(), Effect.STEP_SOUND, Material.TORCH.getId());
                     block.breakNaturally();
+                    meta.setLastBlockMillis(System.currentTimeMillis());
+                }
+            }
+        }
+
+        //Seek nearby torches
+        if (System.currentTimeMillis() - meta.getLastBlockMillis() > 10000) {
+            for (int x = -10; x <= 10; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    for (int z = -10; z <= 10; z++) {
+                        Block block = zombie.getLocation().getBlock().getRelative(x, y, z);
+                        double blockDist = MathUtil.distance2DSquared(zombie.getLocation(), block.getLocation());
+                        double targetDist = MathUtil.distance2DSquared(zombie.getLocation(), zombie.getTarget().getLocation());
+                        if (block.getType().equals(Material.TORCH) && blockDist < targetDist) {
+                            ExtendedEntity xZombie = new ExtendedEntity(zombie);
+                            xZombie.walkTo(block.getLocation(), 1.0f);
+                            break;
+                        }
+                    }
                 }
             }
         }
