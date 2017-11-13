@@ -12,7 +12,15 @@ public class MathUtil {
      * also uses a costly square root function.
      */
     public static double distance2DSquared(Location loc1, Location loc2) {
-        return Math.pow(loc1.getX() - loc2.getX(), 2) + Math.pow(loc1.getZ() - loc2.getZ(), 2);
+        return square(loc1.getX() - loc2.getX()) + square(loc1.getZ() - loc2.getZ());
+    }
+
+
+    /**
+     * Square a double
+     */
+    public static double square(double n) {
+        return n * n;
     }
 
 
