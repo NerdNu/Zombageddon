@@ -21,6 +21,7 @@ public class Configuration {
 
     public Configuration(Zombageddon plugin) {
         this.plugin = plugin;
+        plugin.saveDefaultConfig();
     }
 
 
