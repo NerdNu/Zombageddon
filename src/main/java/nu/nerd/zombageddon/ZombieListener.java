@@ -3,10 +3,12 @@ package nu.nerd.zombageddon;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 
 
@@ -36,6 +38,22 @@ public class ZombieListener implements Listener {
         for (Entity ent : event.getChunk().getEntities()) {
             if (ent.getType().equals(EntityType.ZOMBIE)) {
                 zombieSetUp((Zombie) ent);
+            }
+        }
+    }
+
+
+    /**
+     * Zombies should always prioritize player targets
+     */
+    @EventHandler
+    public void onTarget(EntityTargetEvent event) {
+        if (!plugin.CONFIG.worldEnabled(event.getEntity().getWorld())) return;
+        if (!event.getEntity().getType().equals(EntityType.ZOMBIE)) return;
+        if (event.getTarget() == null || !event.getTarget().getType().equals(EntityType.PLAYER)) {
+            Player player = MathUtil.nearestPlayer(event.getEntity(), plugin.CONFIG.AGGRO_RADIUS);
+            if (!(player == null)) {
+                ((Zombie) event.getEntity()).setTarget(player);
             }
         }
     }

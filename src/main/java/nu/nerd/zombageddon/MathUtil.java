@@ -1,6 +1,9 @@
 package nu.nerd.zombageddon;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 
 public class MathUtil {
@@ -21,6 +24,26 @@ public class MathUtil {
      */
     public static double square(double n) {
         return n * n;
+    }
+
+
+    /**
+     * Find the nearest player in a radius from the specified entity
+     */
+    public static Player nearestPlayer(Entity entity, double radius) {
+        Player player = null;
+        double shortest = Double.MAX_VALUE;
+        double distSq;
+        for (Player p : entity.getWorld().getPlayers()) {
+            if (p.isDead() || !p.getGameMode().equals(GameMode.SURVIVAL)) continue;
+            if (!entity.getWorld().equals(p.getWorld())) continue;
+            distSq = entity.getLocation().distanceSquared(p.getLocation()); //3D distance
+            if (distSq < shortest) {
+                player = p;
+                shortest = distSq;
+            }
+        }
+        return player;
     }
 
 
