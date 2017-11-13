@@ -1,5 +1,6 @@
 package nu.nerd.zombageddon;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,12 +28,9 @@ public class CommandHandler implements CommandExecutor {
             if (args.length < 1) {
                 sender.sendMessage("You must specify a subcommand.");
             }
-            else if (args[0].equalsIgnoreCase("elytra")) {
-                // silly test lol
-                Player p = (Player) sender;
-                LivingEntity ent = (LivingEntity) p.getWorld().spawnEntity(p.getLocation(), EntityType.ZOMBIE);
-                ent.getEquipment().setChestplate(new ItemStack(Material.ELYTRA));
-                ent.setGliding(true);
+            else if (args[0].equalsIgnoreCase("reload")) {
+                plugin.CONFIG.reload();
+                sender.sendMessage(ChatColor.DARK_AQUA + "Zombageddon config reloaded.");
             }
             return true;
         }

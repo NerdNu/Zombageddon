@@ -8,4 +8,8 @@ aggro_radius: 160
 # Allow zombies to bridge/pillar to reach players
 construction: true
 
+# Aggroed zombies will destroy torches they walk by
 torch_destruction: true
+
+# Zombies will go out of their way to seek torches on the way to players
+torch_seeking: true

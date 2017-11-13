@@ -16,6 +16,7 @@ public class Configuration {
     public int AGGRO_RADIUS;
     public boolean CONSTRUCTION;
     public boolean TORCH_DESTRUCTION;
+    public boolean TORCH_SEEKING;
 
 
     public Configuration(Zombageddon plugin) {
@@ -29,6 +30,7 @@ public class Configuration {
         AGGRO_RADIUS = plugin.getConfig().getInt("aggro_radius", 160);
         CONSTRUCTION = plugin.getConfig().getBoolean("construction", true);
         TORCH_DESTRUCTION = plugin.getConfig().getBoolean("torch_destruction", true);
+        TORCH_SEEKING = plugin.getConfig().getBoolean("torch_seeking", true);
     }
 
 
@@ -37,6 +39,7 @@ public class Configuration {
         plugin.getConfig().set("aggro_raius", AGGRO_RADIUS);
         plugin.getConfig().set("construction", CONSTRUCTION);
         plugin.getConfig().set("torch_destruction", TORCH_DESTRUCTION);
+        plugin.getConfig().set("torch_seeking", TORCH_SEEKING);
         plugin.saveConfig();
     }
 

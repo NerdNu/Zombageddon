@@ -249,7 +249,7 @@ public class ZombieMotivator extends BukkitRunnable {
         }
 
         //Seek nearby torches
-        if (System.currentTimeMillis() - meta.getLastBlockMillis() > 10000) {
+        if (plugin.CONFIG.TORCH_SEEKING && (System.currentTimeMillis() - meta.getLastBlockMillis() > 10000)) {
             for (int x = -10; x <= 10; x++) {
                 for (int y = -1; y <= 1; y++) {
                     for (int z = -10; z <= 10; z++) {
