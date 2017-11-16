@@ -11,4 +11,4 @@ Zombie apocalpyse plugin. Requires [MirrorMirror](https://github.com/NerdNu/Mirr
 
 3. ~~**Aggro Radius:** Use Attribute system to set zombies' aggro range to be significantly higher.~~
 
-4. **Spawn extra zombies:** When a player is around zombies, add more zombies!
+4. ~~**Spawn extra zombies:** When a player is around zombies, add more zombies!~~

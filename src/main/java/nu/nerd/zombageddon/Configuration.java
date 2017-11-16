@@ -17,6 +17,13 @@ public class Configuration {
     public boolean CONSTRUCTION;
     public boolean TORCH_DESTRUCTION;
     public boolean TORCH_SEEKING;
+    public boolean SPAWNING;
+    public int SPAWNING_CAP;
+    public int SPAWNING_FREQUENCY;
+    public int SPAWNING_ATTEMPTS;
+    public int SPAWNING_LIGHT;
+    public int SPAWNING_RADIUS_MIN;
+    public int SPAWNING_RADIUS_MAX;
 
 
     public Configuration(Zombageddon plugin) {
@@ -32,6 +39,13 @@ public class Configuration {
         CONSTRUCTION = plugin.getConfig().getBoolean("construction", true);
         TORCH_DESTRUCTION = plugin.getConfig().getBoolean("torch_destruction", true);
         TORCH_SEEKING = plugin.getConfig().getBoolean("torch_seeking", true);
+        SPAWNING = plugin.getConfig().getBoolean("spawning", true);
+        SPAWNING_CAP = plugin.getConfig().getInt("spawning_cap", 3000);
+        SPAWNING_FREQUENCY = plugin.getConfig().getInt("spawning_frequency", 100);
+        SPAWNING_ATTEMPTS = plugin.getConfig().getInt("spawning_attempts", 10);
+        SPAWNING_LIGHT = plugin.getConfig().getInt("spawning_light", 7);
+        SPAWNING_RADIUS_MIN = plugin.getConfig().getInt("spawning_radius_min", 24);
+        SPAWNING_RADIUS_MAX = plugin.getConfig().getInt("spawning_radius_max", 80);
     }
 
 
@@ -41,6 +55,13 @@ public class Configuration {
         plugin.getConfig().set("construction", CONSTRUCTION);
         plugin.getConfig().set("torch_destruction", TORCH_DESTRUCTION);
         plugin.getConfig().set("torch_seeking", TORCH_SEEKING);
+        plugin.getConfig().set("spawning", SPAWNING);
+        plugin.getConfig().set("spawning_cap", SPAWNING_CAP);
+        plugin.getConfig().set("spawning_frequency", SPAWNING_FREQUENCY);
+        plugin.getConfig().set("spawning_attempts", SPAWNING_ATTEMPTS);
+        plugin.getConfig().set("spawning_light", SPAWNING_LIGHT);
+        plugin.getConfig().set("spawning_radius_min", SPAWNING_RADIUS_MIN);
+        plugin.getConfig().set("spawning_radius_max", SPAWNING_RADIUS_MAX);
         plugin.saveConfig();
     }
 
