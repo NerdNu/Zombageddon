@@ -1,9 +1,12 @@
 package nu.nerd.zombageddon;
 
 
+import org.bukkit.Material;
 import org.bukkit.World;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -24,6 +27,7 @@ public class Configuration {
     public int SPAWNING_LIGHT;
     public int SPAWNING_RADIUS_MIN;
     public int SPAWNING_RADIUS_MAX;
+    public Map<Material, Integer> BREAKABLE_MATERIALS;
 
 
     public Configuration(Zombageddon plugin) {
@@ -46,6 +50,7 @@ public class Configuration {
         SPAWNING_LIGHT = plugin.getConfig().getInt("spawning_light", 7);
         SPAWNING_RADIUS_MIN = plugin.getConfig().getInt("spawning_radius_min", 24);
         SPAWNING_RADIUS_MAX = plugin.getConfig().getInt("spawning_radius_max", 80);
+        loadBreakableMaterials();
     }
 
 
@@ -62,7 +67,29 @@ public class Configuration {
         plugin.getConfig().set("spawning_light", SPAWNING_LIGHT);
         plugin.getConfig().set("spawning_radius_min", SPAWNING_RADIUS_MIN);
         plugin.getConfig().set("spawning_radius_max", SPAWNING_RADIUS_MAX);
+        saveBreakableMaterials();
         plugin.saveConfig();
+    }
+
+
+    private void loadBreakableMaterials() {
+        BREAKABLE_MATERIALS = new HashMap<Material, Integer>();
+        for (String key : plugin.getConfig().getConfigurationSection("breakable_materials").getKeys(false)) {
+            Material mat = Material.matchMaterial(key);
+            int sec = plugin.getConfig().getInt(String.format("breakable_materials.%s", key));
+            if (mat != null) {
+                BREAKABLE_MATERIALS.put(mat, sec);
+            }
+        }
+    }
+
+
+    private void saveBreakableMaterials() {
+        Map<String, Integer> breakable = new HashMap<String, Integer>();
+        for (Map.Entry<Material, Integer> entry : BREAKABLE_MATERIALS.entrySet()) {
+            breakable.put(entry.getKey().toString(), entry.getValue());
+        }
+        plugin.getConfig().set("breakable_materials", breakable);
     }
 
 

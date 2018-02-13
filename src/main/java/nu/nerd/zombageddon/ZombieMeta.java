@@ -12,6 +12,7 @@ public class ZombieMeta {
     private Location frustLoc;
     private int frustTicks;
     private long lastBlockMillis;
+    private TargetBreakable wallTarget;
 
 
     public ZombieMeta(UUID id) {
@@ -19,6 +20,7 @@ public class ZombieMeta {
         this.frustLoc = null;
         this.frustTicks = 0;
         this.lastBlockMillis = 0;
+        this.wallTarget = null;
     }
 
 
@@ -64,6 +66,16 @@ public class ZombieMeta {
 
     public void setLastBlockMillis(long lastBlockMillis) {
         this.lastBlockMillis = lastBlockMillis;
+    }
+
+
+    public TargetBreakable getWallTarget() {
+        return wallTarget;
+    }
+
+
+    public void setWallTarget(TargetBreakable wallTarget) {
+        this.wallTarget = wallTarget;
     }
 
 

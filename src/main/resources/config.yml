@@ -32,3 +32,10 @@ spawning_light: 7
 # Distance from the player that new zombies should spawn
 spawning_radius_max: 80
 spawning_radius_min: 24
+
+# Blocks zombies can break, and the number of seconds to do so.
+# Set to "[]" to disable completely.
+breakable_materials:
+  DIRT: 10
+  THIN_GLASS: 15
+  STONE: 45

@@ -12,6 +12,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BlockIterator;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class ZombieMotivator extends BukkitRunnable {
     public void run() {
         for (Zombie zombie : getEligibleZombies()) {
             incrementFrustrationTime(zombie);
-            tryBridging(zombie, tryPillaring(zombie));
+            tryWallBreaking(zombie, tryBridging(zombie, tryPillaring(zombie)));
             destroyTorches(zombie);
         }
     }
@@ -149,6 +150,29 @@ public class ZombieMotivator extends BukkitRunnable {
 
 
     /**
+     * Determine whether to break blocks in the way
+     * @param zombie the entity
+     * @param didBridge whether the prior bridging attempt was successful
+     * @return true if the attempt was successful
+     */
+    private boolean tryWallBreaking(Zombie zombie, boolean didBridge) {
+
+        if (!zombieMeta.containsKey(zombie.getUniqueId()) || zombieMeta.get(zombie.getUniqueId()).getFrustLoc() == null) {
+            return false;
+        }
+
+        ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
+
+        if (plugin.CONFIG.BREAKABLE_MATERIALS.size() < 1) return false;
+        if (!meta.isFrustrated()) return false;
+        if (didBridge) return false;
+
+        return doWallBreak(zombie);
+
+    }
+
+
+    /**
      * Make the zombie jump up and place a block
      */
     private boolean doPillar(Zombie zombie) {
@@ -227,6 +251,49 @@ public class ZombieMotivator extends BukkitRunnable {
 
 
     /**
+     * Make the zombie break blocks impeding its path to the player
+     */
+    private boolean doWallBreak(Zombie zombie) {
+
+        ZombieMeta meta = zombieMeta.get(zombie.getUniqueId());
+        TargetBreakable tb = meta.getWallTarget();
+
+        //increment timer and break the block when ready
+        if (tb != null && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(tb.getBlock().getType())) {
+            tb.incrementTicks();
+            tb.updateLastTouched();
+            if (tb.getSeconds() >= plugin.CONFIG.BREAKABLE_MATERIALS.get(tb.getBlock().getType())) {
+                plugin.getLogger().info("Breaking block!" + tb.getBlock().toString());
+                zombie.getWorld().playEffect(zombie.getLocation(), Effect.STEP_SOUND, Material.TORCH.getId());
+                tb.getBlock().breakNaturally();
+                meta.setWallTarget(null);
+                return true;
+            }
+        }
+
+        //determine a new target block
+        if (tb == null || (System.currentTimeMillis() - tb.getLastTouched()) > 120000) {
+            Block eye = firstObstructingBlock(zombie.getEyeLocation());
+            Block foot = firstObstructingBlock(zombie.getLocation());
+            if (eye != null && !eye.getType().equals(Material.AIR) && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(eye.getType())) {
+                meta.setWallTarget(new TargetBreakable(eye));
+                plugin.getLogger().info("Selected eye block " + eye.getLocation().toString());
+            }
+            else if (foot != null && !foot.getType().equals(Material.AIR) && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(foot.getType())) {
+                meta.setWallTarget(new TargetBreakable(foot));
+                plugin.getLogger().info("Selected foot block " + foot.getLocation().toString());
+            }
+            else {
+                meta.setWallTarget(null);
+            }
+        }
+
+        return false;
+
+    }
+
+
+    /**
      * Zombies will break torches in brightly lit areas
      */
     private void destroyTorches(Zombie zombie) {
@@ -278,6 +345,18 @@ public class ZombieMotivator extends BukkitRunnable {
                 Material.YELLOW_FLOWER
         };
         return Arrays.asList(air).contains(under.getType());
+    }
+
+
+    private Block firstObstructingBlock(Location loc) {
+        BlockIterator it = new BlockIterator(loc, 0.0d, 4);
+        while (it.hasNext()) {
+            Block block = it.next();
+            if (!block.getType().equals(Material.AIR)) {
+                return block;
+            }
+        }
+        return null;
     }
 
 
