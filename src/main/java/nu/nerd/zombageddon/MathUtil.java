@@ -32,7 +32,7 @@ public class MathUtil {
      */
     public static Player nearestPlayer(Entity entity, double radius) {
         Player player = null;
-        double shortest = Double.MAX_VALUE;
+        double shortest = (radius * radius) + 1;
         double distSq;
         for (Player p : entity.getWorld().getPlayers()) {
             if (p.isDead() || !p.getGameMode().equals(GameMode.SURVIVAL)) continue;
