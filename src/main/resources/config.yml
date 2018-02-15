@@ -33,6 +33,9 @@ spawning_light: 7
 spawning_radius_max: 80
 spawning_radius_min: 24
 
+# WHen enabled, zombies place TNT instead of breaking walls
+tnt_mode: false
+
 # Blocks zombies can break, and the number of seconds to do so.
 # Set to "[]" to disable completely.
 breakable_materials:

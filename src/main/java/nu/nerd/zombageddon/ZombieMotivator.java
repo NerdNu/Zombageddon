@@ -13,6 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Zombie;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -288,15 +289,19 @@ public class ZombieMotivator extends BukkitRunnable {
         if (tb != null && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(tb.getBlock().getType())) {
             tb.incrementTicks();
             tb.updateLastTouched();
-            if (tb.getSeconds() >= plugin.CONFIG.BREAKABLE_MATERIALS.get(tb.getBlock().getType())) {
-                zombie.getWorld().playSound(zombie.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_DOOR_WOOD, 1.0f, 1.0f);
-                tb.getBlock().breakNaturally();
-                meta.setWallTarget(null);
-                return true;
-            } else if (tb.getTicks() % 20 == 0 && tb.getSeconds() % 2 == 0) {
-                //play the breaking sound/particle
-                zombie.getWorld().playSound(zombie.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_DOOR_WOOD, 0.5f, 1.0f);
-                zombie.getWorld().spawnParticle(Particle.BLOCK_CRACK, tb.getBlock().getLocation(), 20, new MaterialData(Material.STONE));
+            if (!plugin.CONFIG.TNT_MODE) {
+                if (tb.getSeconds() >= plugin.CONFIG.BREAKABLE_MATERIALS.get(tb.getBlock().getType())) {
+                    zombie.getWorld().playSound(zombie.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_DOOR_WOOD, 1.0f, 1.0f);
+                    tb.getBlock().breakNaturally();
+                    meta.setWallTarget(null);
+                    return true;
+                } else if (tb.getTicks() % 20 == 0 && tb.getSeconds() % 2 == 0) {
+                    //play the breaking sound/particle
+                    zombie.getWorld().playSound(zombie.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_DOOR_WOOD, 0.5f, 1.0f);
+                    zombie.getWorld().spawnParticle(Particle.BLOCK_CRACK, tb.getBlock().getLocation(), 20, new MaterialData(Material.STONE));
+                }
+            } else {
+                return doTNTMode(zombie, meta);
             }
         }
 
@@ -319,6 +324,23 @@ public class ZombieMotivator extends BukkitRunnable {
 
         return false;
 
+    }
+
+
+    /**
+     * TNT mode is on. Zombies will place TNT instead of breaking walls by hand
+     * After 180 seconds, every following second will have a 10% chance of BOOM.
+     */
+    private boolean doTNTMode(Zombie zombie, ZombieMeta meta) {
+        TargetBreakable tb = meta.getWallTarget();
+        if (tb.getTicks() % 20 == 0 && tb.getSeconds() >= 180 && Math.random() > 0.9f) {
+            Location loc = zombie.getLocation();
+            zombie.teleport(loc.add(0, 1.3, 0));
+            zombie.getWorld().spawn(loc, TNTPrimed.class);
+            meta.setWallTarget(null);
+            return true;
+        }
+        return false;
     }
 
 

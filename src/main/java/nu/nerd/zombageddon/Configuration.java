@@ -27,6 +27,7 @@ public class Configuration {
     public int SPAWNING_LIGHT;
     public int SPAWNING_RADIUS_MIN;
     public int SPAWNING_RADIUS_MAX;
+    public boolean TNT_MODE;
     public Map<Material, Integer> BREAKABLE_MATERIALS;
 
 
@@ -50,6 +51,7 @@ public class Configuration {
         SPAWNING_LIGHT = plugin.getConfig().getInt("spawning_light", 7);
         SPAWNING_RADIUS_MIN = plugin.getConfig().getInt("spawning_radius_min", 24);
         SPAWNING_RADIUS_MAX = plugin.getConfig().getInt("spawning_radius_max", 80);
+        TNT_MODE = plugin.getConfig().getBoolean("tnt_mode", false);
         loadBreakableMaterials();
     }
 
@@ -67,6 +69,7 @@ public class Configuration {
         plugin.getConfig().set("spawning_light", SPAWNING_LIGHT);
         plugin.getConfig().set("spawning_radius_min", SPAWNING_RADIUS_MIN);
         plugin.getConfig().set("spawning_radius_max", SPAWNING_RADIUS_MAX);
+        plugin.getConfig().set("tnt_mode", TNT_MODE);
         saveBreakableMaterials();
         plugin.saveConfig();
     }
