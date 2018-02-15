@@ -304,10 +304,12 @@ public class ZombieMotivator extends BukkitRunnable {
         if (tb == null || (System.currentTimeMillis() - tb.getLastTouched()) > 120000) {
             Block eye = firstObstructingBlock(zombie.getEyeLocation());
             Block foot = firstObstructingBlock(zombie.getLocation());
-            if (eye != null && !eye.getType().equals(Material.AIR) && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(eye.getType())) {
+            double eyeDist = (eye != null) ? eye.getLocation().distanceSquared(zombie.getLocation()) : 99d;
+            double footDist = (foot != null) ? foot.getLocation().distanceSquared(zombie.getLocation()) : 99d;
+            if (eye != null && eyeDist <= footDist && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(eye.getType())) {
                 meta.setWallTarget(new TargetBreakable(eye));
             }
-            else if (foot != null && !foot.getType().equals(Material.AIR) && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(foot.getType())) {
+            else if (foot != null && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(foot.getType())) {
                 meta.setWallTarget(new TargetBreakable(foot));
             }
             else {
