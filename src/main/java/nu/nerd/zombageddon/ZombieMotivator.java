@@ -5,12 +5,16 @@ import nu.nerd.mirrormirror.ExtendedEntity;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
+import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
 
@@ -37,6 +41,7 @@ public class ZombieMotivator extends BukkitRunnable {
 
 
     public void run() {
+        forceAggro();
         for (Zombie zombie : getEligibleZombies()) {
             incrementFrustrationTime(zombie);
             tryWallBreaking(zombie, tryBridging(zombie, tryPillaring(zombie)));
@@ -95,6 +100,27 @@ public class ZombieMotivator extends BukkitRunnable {
             } else {
                 meta.setFrustTicks(0);
                 meta.setFrustLoc(null);
+            }
+        }
+    }
+
+
+    /**
+     * Ensure that zombies near players stay focused on them
+     */
+    private void forceAggro() {
+        for (World world : plugin.getServer().getWorlds()) {
+            if (!plugin.CONFIG.worldEnabled(world)) continue;
+            for (LivingEntity entity : world.getLivingEntities()) {
+                if (entity.getType().equals(EntityType.ZOMBIE)) {
+                    Zombie zombie = (Zombie) entity;
+                    if (zombie.getTarget() == null || !zombie.getTarget().getType().equals(EntityType.PLAYER)) {
+                        Player player = MathUtil.nearestPlayer(entity, plugin.CONFIG.AGGRO_RADIUS);
+                        if (player != null) {
+                            zombie.setTarget(player);
+                        }
+                    }
+                }
             }
         }
     }
@@ -263,11 +289,14 @@ public class ZombieMotivator extends BukkitRunnable {
             tb.incrementTicks();
             tb.updateLastTouched();
             if (tb.getSeconds() >= plugin.CONFIG.BREAKABLE_MATERIALS.get(tb.getBlock().getType())) {
-                plugin.getLogger().info("Breaking block!" + tb.getBlock().toString());
-                zombie.getWorld().playEffect(zombie.getLocation(), Effect.STEP_SOUND, Material.TORCH.getId());
+                zombie.getWorld().playSound(zombie.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_DOOR_WOOD, 1.0f, 1.0f);
                 tb.getBlock().breakNaturally();
                 meta.setWallTarget(null);
                 return true;
+            } else if (tb.getTicks() % 20 == 0 && tb.getSeconds() % 2 == 0) {
+                //play the breaking sound/particle
+                zombie.getWorld().playSound(zombie.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_DOOR_WOOD, 0.5f, 1.0f);
+                zombie.getWorld().spawnParticle(Particle.BLOCK_CRACK, tb.getBlock().getLocation(), 20, new MaterialData(Material.STONE));
             }
         }
 
@@ -277,11 +306,9 @@ public class ZombieMotivator extends BukkitRunnable {
             Block foot = firstObstructingBlock(zombie.getLocation());
             if (eye != null && !eye.getType().equals(Material.AIR) && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(eye.getType())) {
                 meta.setWallTarget(new TargetBreakable(eye));
-                plugin.getLogger().info("Selected eye block " + eye.getLocation().toString());
             }
             else if (foot != null && !foot.getType().equals(Material.AIR) && plugin.CONFIG.BREAKABLE_MATERIALS.containsKey(foot.getType())) {
                 meta.setWallTarget(new TargetBreakable(foot));
-                plugin.getLogger().info("Selected foot block " + foot.getLocation().toString());
             }
             else {
                 meta.setWallTarget(null);
