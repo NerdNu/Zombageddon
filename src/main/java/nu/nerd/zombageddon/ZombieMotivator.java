@@ -3,6 +3,7 @@ package nu.nerd.zombageddon;
 
 import nu.nerd.mirrormirror.ExtendedEntity;
 import org.bukkit.Effect;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -117,7 +118,7 @@ public class ZombieMotivator extends BukkitRunnable {
                     Zombie zombie = (Zombie) entity;
                     if (zombie.getTarget() == null || !zombie.getTarget().getType().equals(EntityType.PLAYER)) {
                         Player player = MathUtil.nearestPlayer(entity, plugin.CONFIG.AGGRO_RADIUS);
-                        if (player != null) {
+                        if (player != null && !player.getGameMode().equals(GameMode.CREATIVE)) {
                             zombie.setTarget(player);
                         }
                     }
