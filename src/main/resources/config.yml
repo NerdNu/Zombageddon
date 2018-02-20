@@ -20,6 +20,9 @@ spawning: true
 # Hard cap for zombie spawning. No more will spawn if the living entity populaton is greater or equal to this
 spawning_cap: 3000
 
+# Hard cap for the zombie population immediately surrounding a player. Based on spawning_radius_max.
+spawning_nearby_cap: 30
+
 # How often (in ticks) the horde spawner should run
 spawning_frequency: 100
 

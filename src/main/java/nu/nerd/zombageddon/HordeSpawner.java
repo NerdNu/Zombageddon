@@ -39,6 +39,7 @@ public class HordeSpawner extends BukkitRunnable {
             if (world.getLivingEntities().size() >= plugin.CONFIG.SPAWNING_CAP) continue;
             for (Player player : world.getPlayers()) {
                 if (!player.getGameMode().equals(GameMode.SURVIVAL)) continue;
+                if (zombiesNearbyExceedCap(player)) continue;
                 int nearbyPlayers = getNearbyPlayerCount(player, max) + 1;
                 int adjustedAttempts = Math.round(plugin.CONFIG.SPAWNING_ATTEMPTS / nearbyPlayers);
                 if (adjustedAttempts < 1) adjustedAttempts = 1;
@@ -106,6 +107,21 @@ public class HordeSpawner extends BukkitRunnable {
             if (ent.getType().equals(EntityType.PLAYER)) count++;
         }
         return count;
+    }
+
+
+    /**
+     * Returns true if the number of zombies in the outer spawning radius from a player exceed the local cap
+     * defined in spawning_nearby_cap.
+     */
+    public boolean zombiesNearbyExceedCap(Player player) {
+        int zombies = 0;
+        double dist = plugin.CONFIG.SPAWNING_RADIUS_MAX / 2;
+        for (Entity ent : player.getNearbyEntities(dist, dist, dist)) {
+            if (ent.getType().equals(EntityType.ZOMBIE)) zombies++;
+        }
+        if (zombies >= plugin.CONFIG.SPAWNING_NEARBY_CAP) player.sendMessage("Zombies exceed threshold!");
+        return zombies >= plugin.CONFIG.SPAWNING_NEARBY_CAP;
     }
 
 

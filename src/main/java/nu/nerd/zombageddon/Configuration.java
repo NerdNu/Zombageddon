@@ -22,6 +22,7 @@ public class Configuration {
     public boolean TORCH_SEEKING;
     public boolean SPAWNING;
     public int SPAWNING_CAP;
+    public int SPAWNING_NEARBY_CAP;
     public int SPAWNING_FREQUENCY;
     public int SPAWNING_ATTEMPTS;
     public int SPAWNING_LIGHT;
@@ -46,6 +47,7 @@ public class Configuration {
         TORCH_SEEKING = plugin.getConfig().getBoolean("torch_seeking", true);
         SPAWNING = plugin.getConfig().getBoolean("spawning", true);
         SPAWNING_CAP = plugin.getConfig().getInt("spawning_cap", 3000);
+        SPAWNING_NEARBY_CAP = plugin.getConfig().getInt("spawning_nearby_cap", 30);
         SPAWNING_FREQUENCY = plugin.getConfig().getInt("spawning_frequency", 100);
         SPAWNING_ATTEMPTS = plugin.getConfig().getInt("spawning_attempts", 10);
         SPAWNING_LIGHT = plugin.getConfig().getInt("spawning_light", 7);
@@ -64,6 +66,7 @@ public class Configuration {
         plugin.getConfig().set("torch_seeking", TORCH_SEEKING);
         plugin.getConfig().set("spawning", SPAWNING);
         plugin.getConfig().set("spawning_cap", SPAWNING_CAP);
+        plugin.getConfig().set("spawning_nearby_cap", SPAWNING_NEARBY_CAP);
         plugin.getConfig().set("spawning_frequency", SPAWNING_FREQUENCY);
         plugin.getConfig().set("spawning_attempts", SPAWNING_ATTEMPTS);
         plugin.getConfig().set("spawning_light", SPAWNING_LIGHT);
