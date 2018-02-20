@@ -11,6 +11,7 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -334,11 +335,21 @@ public class ZombieMotivator extends BukkitRunnable {
      */
     private boolean doTNTMode(Zombie zombie, ZombieMeta meta) {
         TargetBreakable tb = meta.getWallTarget();
+        if ((System.currentTimeMillis() - meta.getLastBlockMillis()) < 1000) return false;
         if (tb.getTicks() % 20 == 0 && tb.getSeconds() >= 180 && Math.random() > 0.9f) {
             Location loc = zombie.getLocation();
             zombie.teleport(loc.add(0, 1.3, 0));
             zombie.getWorld().spawn(loc, TNTPrimed.class);
             meta.setWallTarget(null);
+            //don't let nearby zombies TNT for awhile
+            if (zombie.getTarget().getType().equals(EntityType.PLAYER)) {
+                Player player = (Player) zombie.getTarget();
+                for (Entity ent : player.getNearbyEntities(30, 30, 30)) {
+                    if (!ent.getType().equals(EntityType.ZOMBIE)) continue;
+                    ZombieMeta m = zombieMeta.get(ent.getUniqueId());
+                    m.setLastBlockMillis(System.currentTimeMillis() + 10000);
+                }
+            }
             return true;
         }
         return false;
