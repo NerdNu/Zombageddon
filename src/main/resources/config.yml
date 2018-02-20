@@ -24,10 +24,10 @@ spawning_cap: 3000
 spawning_nearby_cap: 30
 
 # How often (in ticks) the horde spawner should run
-spawning_frequency: 200
+spawning_frequency: 100
 
 # The maximum number of attempts the spawner will make per player per run
-spawning_attempts: 3
+spawning_attempts: 10
 
 # Maximum light level for zombies to spawn (0-16)
 spawning_light: 7
@@ -96,3 +96,4 @@ breakable_materials:
   LADDER: 15
   TRAP_DOOR: 30
   JUKEBOX: 30
+  TOUCH: 1
