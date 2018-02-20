@@ -120,7 +120,6 @@ public class HordeSpawner extends BukkitRunnable {
         for (Entity ent : player.getNearbyEntities(dist, dist, dist)) {
             if (ent.getType().equals(EntityType.ZOMBIE)) zombies++;
         }
-        if (zombies >= plugin.CONFIG.SPAWNING_NEARBY_CAP) player.sendMessage("Zombies exceed threshold!");
         return zombies >= plugin.CONFIG.SPAWNING_NEARBY_CAP;
     }
 
