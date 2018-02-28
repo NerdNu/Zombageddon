@@ -5,6 +5,9 @@ worlds:
 # Radius that zombies will follow and aggro
 aggro_radius: 160
 
+# Speed adult zombies move at. Vanilla is 0.23, which works out to 9.9m/s
+adult_zombie_speed: 0.23
+
 # Allow zombies to bridge/pillar to reach players
 construction: true
 

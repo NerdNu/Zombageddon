@@ -65,6 +65,9 @@ public class ZombieListener implements Listener {
     private void zombieSetUp(Zombie zombie) {
         // aggro radius
         zombie.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(plugin.CONFIG.AGGRO_RADIUS);
+        if (!zombie.isBaby()) {
+            zombie.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(plugin.CONFIG.ADULT_ZOMBIE_SPEED);
+        }
     }
 
 
